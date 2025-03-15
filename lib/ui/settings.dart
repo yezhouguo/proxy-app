@@ -116,7 +116,7 @@ class _AppSettingsState extends State<AppSettings> {
                 children: [
                   Text(S.of(context).text_describe),
                   Text(S.of(context).text_author),
-                  Text('${S.of(context).text_update_time}：2025-01-03'),
+                  Text('${S.of(context).text_update_time}：2025-03-15'),
                   Row(
                     children: [
                       const Text('github:'),
@@ -151,8 +151,7 @@ void showUpdateDialog(BuildContext context, String version, String arch,
   int maxRetry = 2; // 最大重试次数
   // 获取版本信息
   String appproxyUpdateUrl = url != ""
-      ? url
-      : "https://api.github.com/repos/ys1231/appproxy/releases/latest";
+      ? url : "https://pfile.ys1231.cn/modules/appproxy/appproxy.json";
   // 使用dio获取版本信息
   String versionName = "0";
   String modifyContent = "";
@@ -181,7 +180,7 @@ void showUpdateDialog(BuildContext context, String version, String arch,
   } catch (e) {
     if (retryCount < maxRetry) {
       retryCount++;
-      appproxyUpdateUrl = "https://pfile.ys1231.cn/modules/appproxy/appproxy.json";
+      appproxyUpdateUrl = "https://api.github.com/repos/ys1231/appproxy/releases/latest";
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.of(context).text_get_version_info_fail)));
       showUpdateDialog(context, version, arch,

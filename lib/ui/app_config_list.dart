@@ -246,10 +246,11 @@ class AppConfigState extends State<AppConfigList> {
     // 遍历当前显示的应用列表
     if (searchText.isNotEmpty) {
       _searchAppListInfo = _jsonAppListInfo.where((itemMap) {
-        final label =
-            PinyinHelper.getShortPinyin(itemMap["label"]).toLowerCase() + itemMap["packageName"];
+        final label = itemMap["label"] +
+            PinyinHelper.getShortPinyin(itemMap["label"]).toLowerCase() +
+            itemMap["packageName"];
         final search = searchText.toLowerCase();
-        return label.startsWith(search) || label.startsWith(search) || label.contains(search);
+        return label.contains(search);
       }).toList();
     }
     if (_searchAppListInfo.isNotEmpty) {
@@ -443,6 +444,10 @@ class AppConfigState extends State<AppConfigList> {
                             onTap: () {
                               // 调用子控件选择或取消选中 并回调 callbackOnChanged 更新数据
                               _cardKeys[c_index].currentState!.toggleCheckbox();
+                              // 同时刷新列表,选中的会移到最顶上,或取消置顶
+                              setState(() {
+                                getAppList();
+                              });
                               debugPrint("onTap:${itemMap["packageName"]}");
                             }),
                       );
