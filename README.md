@@ -62,7 +62,7 @@ ls ../android/app/libs/tun2socks.aar
 
 ```shell
 # 如果发现Android Studio 调试flutter 自动跳到一个只读的文件,调试的时候无法修改代码,可以恢复上一个版本,是的坑.
-# 推荐 Android Studio Iguana | 2023.2.1 Patch 2
+# 推荐 "Android Studio Iguana | 2023.2.1 Patch 2" -> "Android Studio Meerkat | 2024.3.1 Patch 1"
 # line 设置为 100
 tun2socks/build.sh
 flutter build apk --release --split-per-abi --build-name=$VERSION --obfuscate --split-debug-info ./build/
