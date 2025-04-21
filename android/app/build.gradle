@@ -29,7 +29,7 @@ if (keystore == null){
 
 def fndkVersion = localProperties.getProperty('flutter.ndkVersion')
 if (fndkVersion == null){
-    throw new Exception("flutter.ndkVersion is not set in local.properties")
+    return "29.0.13113456"
 }
 
 android {
@@ -85,12 +85,8 @@ android {
 flutter {
     source '../..'
 }
-repositories {
-    flatDir {
-        dirs 'libs'
-    }
-}
+
 dependencies {
-    implementation (name:'tun2socks', ext:'aar')
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation (files("libs/tun2socks.aar"))
+    implementation("com.google.code.gson:gson:2.11.0")
 }

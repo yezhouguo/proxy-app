@@ -50,7 +50,7 @@ class Utils(private val context: Context) {
             // 排除当前应用或未请求INTERNET权限的应用
             if (info.packageName == context.applicationInfo.packageName ||
                 info.requestedPermissions == null ||
-                !info.requestedPermissions.contains(INTERNET)
+                !(info.requestedPermissions as Array<out Any?>).contains(INTERNET)
                 ) {
                 continue
             }
@@ -59,7 +59,7 @@ class Utils(private val context: Context) {
             val appInfoMap = mutableMapOf<String, Any>()
 
             // 获取并添加应用的标签信息
-            appInfoMap["label"] = pm.getApplicationLabel(info.applicationInfo)
+            appInfoMap["label"] = pm.getApplicationLabel(info.applicationInfo!!)
 
             // 获取并添加应用的包名
             appInfoMap["packageName"] = info.packageName
@@ -96,7 +96,7 @@ class Utils(private val context: Context) {
     }
 
     private val PackageInfo.isSystemApp: Boolean
-        get() = applicationInfo.flags and FLAG_SYSTEM != 0
+        get() = applicationInfo!!.flags and FLAG_SYSTEM != 0
 
     private fun drawableToBitmap(drawable: Drawable): Bitmap {
         val bitmapWidth = drawable.intrinsicWidth

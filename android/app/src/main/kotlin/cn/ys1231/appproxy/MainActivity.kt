@@ -69,8 +69,8 @@ class MainActivity : FlutterActivity() {
 
         // 检测VPN服务是否停止 通知 Flutter 更新 ui
         Thread {
+            Log.d(TAG, "check iyueVpnService isRunning: " + iyueVpnService?.isRunning())
             while (true) {
-                Log.d(TAG, "check iyueVpnService isRunning: " + iyueVpnService?.isRunning())
 
                 if (iyueVpnService?.isRunning() == true) {
                     Thread.sleep(1000)
