@@ -1,5 +1,5 @@
 {
-  "VersionName": "v0.1.5",
-  "ModifyContent": "\n\rfix(UI): :bug:  选择需要代理的 app 之后自动置顶. After selecting the app that needs a proxy, it will be automatically pinned to the top.\n\n",
+  "VersionName": "v0.1.6",
+  "ModifyContent": "\n\r- feat: :fire: 新增 WIFI 检测, New WiFi connection detection\n\n",
   "DownloadUrl": "https://pfile.ys1231.cn/modules/appproxy/"
 }
