@@ -71,8 +71,7 @@ class _AppSettingsState extends State<AppSettings> {
                     Switch(
                         value: _isCheckUpdate,
                         onChanged: (bool newValue) {
-                          debugPrint(
-                              '${S.of(context).text_check_update}:$newValue');
+                          debugPrint('${S.of(context).text_check_update}:$newValue');
                           setState(() {
                             _isCheckUpdate = newValue;
                             AppSetings.setCheckUpdate(newValue);
@@ -93,8 +92,7 @@ class _AppSettingsState extends State<AppSettings> {
           Container(
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.only(left: 10.0, top: 10.0),
-            child: Text(S.of(context).text_about,
-                style: const TextStyle(color: Colors.lightBlue)),
+            child: Text(S.of(context).text_about, style: const TextStyle(color: Colors.lightBlue)),
           ),
           const SizedBox(height: 10.0),
           GestureDetector(
@@ -116,7 +114,7 @@ class _AppSettingsState extends State<AppSettings> {
                 children: [
                   Text(S.of(context).text_describe),
                   Text(S.of(context).text_author),
-                  Text('${S.of(context).text_update_time}：2025-03-15'),
+                  Text('${S.of(context).text_update_time}：2025-04-27'),
                   Row(
                     children: [
                       const Text('github:'),
@@ -150,8 +148,8 @@ void showUpdateDialog(BuildContext context, String version, String arch,
     {url = '', retryCount = 0}) async {
   int maxRetry = 2; // 最大重试次数
   // 获取版本信息
-  String appproxyUpdateUrl = url != ""
-      ? url : "https://pfile.ys1231.cn/modules/appproxy/appproxy.json";
+  String appproxyUpdateUrl =
+      url != "" ? url : "https://pfile.ys1231.cn/modules/appproxy/appproxy.json";
   // 使用dio获取版本信息
   String versionName = "0";
   String modifyContent = "";
@@ -181,13 +179,12 @@ void showUpdateDialog(BuildContext context, String version, String arch,
     if (retryCount < maxRetry) {
       retryCount++;
       appproxyUpdateUrl = "https://api.github.com/repos/ys1231/appproxy/releases/latest";
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.of(context).text_get_version_info_fail)));
-      showUpdateDialog(context, version, arch,
-          url: appproxyUpdateUrl, retryCount: retryCount);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(S.of(context).text_get_version_info_fail)));
+      showUpdateDialog(context, version, arch, url: appproxyUpdateUrl, retryCount: retryCount);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(S.of(context).text_get_version_info_check_networ)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(S.of(context).text_get_version_info_check_networ)));
       return;
     }
   }
@@ -198,10 +195,9 @@ void showUpdateDialog(BuildContext context, String version, String arch,
     if (versionName == "0") {
       return;
     }
-    debugPrint(
-        '${S.of(context).text_current_latest},current:$version,new:$versionName');
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S.of(context).text_current_latest)));
+    debugPrint('${S.of(context).text_current_latest},current:$version,new:$versionName');
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(S.of(context).text_current_latest)));
     return;
   }
   // 显示更新对话框

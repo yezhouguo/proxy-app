@@ -44,3 +44,4 @@ app.*.map.json
 tmp*
 test/widget_test.dart
 pubspec.lock
+/lib/generated/

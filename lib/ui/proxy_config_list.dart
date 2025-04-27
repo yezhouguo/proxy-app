@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:appproxy/data/proxy_config_data.dart';
 import 'package:appproxy/events/app_events.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -106,6 +110,29 @@ class _ProxyListHomeState extends State<ProxyListHome> {
     });
   }
 
+  Future<bool> isAndroidQOrAbove() async {
+    if (!Platform.isAndroid) return false;
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    return androidInfo.version.sdkInt >= 29; // Q = 29
+  }
+
+  // 检测网络类型
+  Future<bool> _checkWifiState() async {
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult.contains(ConnectivityResult.wifi)) {
+      debugPrint('Wi-Fi connected');
+      return true;
+    } else {
+      if (await isAndroidQOrAbove()) {
+        AppSettings.openAppSettingsPanel(AppSettingsPanelType.wifi);
+      } else {
+        AppSettings.openAppSettings(type: AppSettingsType.wifi);
+      }
+      return false;
+    }
+  }
+
   // 显示提示是否删除代理
   Future<void> _showDeleteDialog(BuildContext context, Map<String, dynamic> data) async {
     bool isDelete = await showDialog(
@@ -137,6 +164,10 @@ class _ProxyListHomeState extends State<ProxyListHome> {
 
   // 启动VPN
   void _startProxy(data) async {
+    bool isWifi = await _checkWifiState();
+    if (!isWifi) {
+      return;
+    }
     _isSelectedProxyName = data["proxyName"];
     _currentProxyData = data;
     _currentProxyData['appProxyPackageList'] = appProxyPackageList.getListString();
@@ -259,14 +290,14 @@ class AddProxyButton extends StatelessWidget {
           // 构建一个BoxDecoration对象，用于设置容器的装饰效果
           decoration: BoxDecoration(
             // 设置背景颜色为紫色
-            color: Colors.purple.withOpacity(0.9),
+            color: Colors.purple.withAlpha(230),
             // 设置边框圆角为24.0
             borderRadius: BorderRadius.circular(15.0),
             boxShadow: [
               /// 创建一个紫色的阴影效果
               BoxShadow(
                 /// 阴影颜色，这里设置为淡紫色
-                color: Colors.purple.withOpacity(0.2),
+                color: Colors.purple.withAlpha(50),
                 // 阴影的扩展半径，0.0表示没有扩展
                 spreadRadius: 0.0,
                 // 阴影的模糊半径，1.0表示轻微模糊
