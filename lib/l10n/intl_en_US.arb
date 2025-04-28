@@ -37,5 +37,7 @@
   "text_get_version_info_check_networ": "Failed to get version information, please check your network!",
   "text_current_latest": "You are on the latest version",
   "text_language": "Language",
-  "text_switch_language": "Switch the language"
+  "text_switch_language": "Switch the language",
+  "text_wifi_check": "Wifi Check",
+  "text_is_check_wifi": "Enable Wifi Check"
 }

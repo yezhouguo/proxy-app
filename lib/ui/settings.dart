@@ -20,6 +20,7 @@ class _AppSettingsState extends State<AppSettings> {
   var _version = "v0";
   String _arch = "";
   bool _isCheckUpdate = true;
+  bool _isCheckWifi = true;
 
   void initDeviceInfo() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -28,6 +29,7 @@ class _AppSettingsState extends State<AppSettings> {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     // 获取是否需要检测更新
     _isCheckUpdate = await AppSetings.getCheckUpdate();
+    _isCheckWifi = await AppSetings.getCheckWifi();
     _version = packageInfo.version;
     if (_isCheckUpdate) {
       showUpdateDialog(context, _version, _arch);
@@ -92,9 +94,41 @@ class _AppSettingsState extends State<AppSettings> {
           Container(
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.only(left: 10.0, top: 10.0),
+            child: Text(S.of(context).text_wifi_check, style: TextStyle(color: Colors.lightBlue)),
+          ),
+          GestureDetector(
+            child: Card(
+              child: Container(
+                padding: const EdgeInsets.only(left: 10.0),
+                width: MediaQuery.of(context).size.width,
+                height: 50.0,
+                child: Row(
+                  children: [
+                    Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(S.of(context).text_is_check_wifi)
+                    ),
+                    const Spacer(),
+                    Switch(
+                        value: _isCheckWifi,
+                        onChanged: (bool newValue) {
+                          debugPrint(S.of(context).text_wifi_check);
+                          setState(() {
+                            _isCheckWifi = newValue;
+                            AppSetings.setCheckWifi(newValue);
+                          });
+                        })
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.only(left: 10.0, top: 10.0),
             child: Text(S.of(context).text_about, style: const TextStyle(color: Colors.lightBlue)),
           ),
-          const SizedBox(height: 10.0),
+          // const SizedBox(height: 10.0),
           GestureDetector(
             child: Card(
                 child: Container(

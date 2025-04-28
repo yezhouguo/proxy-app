@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:app_settings/app_settings.dart';
+import 'package:appproxy/data/common.dart';
 import 'package:appproxy/data/proxy_config_data.dart';
 import 'package:appproxy/events/app_events.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -164,9 +165,11 @@ class _ProxyListHomeState extends State<ProxyListHome> {
 
   // 启动VPN
   void _startProxy(data) async {
-    bool isWifi = await _checkWifiState();
-    if (!isWifi) {
-      return;
+    if (await AppSetings.getCheckWifi()){
+      bool isWifi = await _checkWifiState();
+      if (!isWifi) {
+        return;
+      }
     }
     _isSelectedProxyName = data["proxyName"];
     _currentProxyData = data;

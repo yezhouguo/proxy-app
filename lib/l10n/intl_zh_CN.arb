@@ -37,5 +37,7 @@
   "text_get_version_info_check_networ": "获取版本信息失败,请检查网络!",
   "text_current_latest": "当前是最新版本",
   "text_language": "语言",
-  "text_switch_language": "切换语言"
+  "text_switch_language": "切换语言",
+  "text_wifi_check": "wifi 检测",
+  "text_is_check_wifi": "是否开启 Wifi 检测"
 }
