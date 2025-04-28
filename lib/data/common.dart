@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AppSetings {
   static const String _CheckUpdate = "isUpdate";
   static const String _CheckWifi = "isCheckWifi";
+  static const String _enableDarkMode = "isEnableDarkMode";
 
   static Future<bool> getCheckUpdate() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -23,5 +24,12 @@ class AppSetings {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setBool(_CheckWifi, value);
   }
-
+  static Future<bool> getEnableDarkMode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_enableDarkMode) ?? false;
+  }
+  static Future<bool> setEnableDarkMode(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setBool(_enableDarkMode, value);
+  }
 }

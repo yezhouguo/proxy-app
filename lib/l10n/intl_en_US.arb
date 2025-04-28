@@ -39,5 +39,8 @@
   "text_language": "Language",
   "text_switch_language": "Switch the language",
   "text_wifi_check": "Wifi Check",
-  "text_is_check_wifi": "Enable Wifi Check"
+  "text_is_check_wifi": "Enable Wifi Check",
+  "text_theme": "Theme",
+  "text_is_dark_mode": "Turn on the dark mode",
+  "text_default_follow_the_system": "Default follow the system"
 }

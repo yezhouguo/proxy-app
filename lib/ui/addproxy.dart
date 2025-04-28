@@ -5,8 +5,7 @@ import 'package:appproxy/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class AddProxyWidget extends StatefulWidget {
-  AddProxyWidget(
-      {super.key, required this.onDataFetched, required this.onData});
+  AddProxyWidget({super.key, required this.onDataFetched, required this.onData});
 
   // 定义一个回调，用于处理读取到的数据
   final Function(Map<String, dynamic>, {bool isAdd}) onDataFetched;
@@ -101,7 +100,7 @@ class _AddProxyWidgetState extends State<AddProxyWidget> {
           ],
         ),
         body: Container(
-            color: Colors.purple.withOpacity(0.3),
+            color: Theme.of(context).canvasColor,
             // 获取当前设备的屏幕高度,解决Column没有充满屏幕出现白色问题
             height: MediaQuery.of(context).size.height,
             child: SingleChildScrollView(
@@ -120,8 +119,7 @@ class _AddProxyWidgetState extends State<AddProxyWidget> {
                       onTap: () {
                         if (widget.onData.isNotEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(
-                                  S.of(context).text_config_cannot_be_modified),
+                              content: Text(S.of(context).text_config_cannot_be_modified),
                               backgroundColor: Colors.purple.withOpacity(0.4)));
                         }
                       }),
@@ -155,10 +153,8 @@ class _AddProxyWidgetState extends State<AddProxyWidget> {
                     ),
                     onChanged: (value) {
                       // 校验只能输入数字
-                      if (value.isNotEmpty &&
-                          !RegExp(r'^[0-9]+$').hasMatch(value)) {
-                        _controller_proxyPort.text =
-                            value.substring(0, value.length - 1);
+                      if (value.isNotEmpty && !RegExp(r'^[0-9]+$').hasMatch(value)) {
+                        _controller_proxyPort.text = value.substring(0, value.length - 1);
                       }
                       _debounce.call(context, checkConnect);
                     },
@@ -201,12 +197,10 @@ class _AddProxyWidgetState extends State<AddProxyWidget> {
     }
     debugPrint("checkConnect:$ip:$port");
     try {
-      final socket = await Socket.connect(ip, int.parse(port),
-          timeout: const Duration(seconds: 1));
+      final socket = await Socket.connect(ip, int.parse(port), timeout: const Duration(seconds: 1));
       socket.close();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('connect success'),
-          backgroundColor: Colors.greenAccent));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('connect success'), backgroundColor: Colors.greenAccent));
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -250,9 +244,7 @@ class _ProxyTypeState extends State<ProxyType> {
       // 设置DropdownMenu的宽度将与其父级的宽度相同
       expandedInsets: EdgeInsets.zero,
       // 设置初始选中项为_http
-      initialSelection: widget.controller.text == defaultValue
-          ? proxyItem.socks5
-          : proxyItem.http,
+      initialSelection: widget.controller.text == defaultValue ? proxyItem.socks5 : proxyItem.http,
       // 关联的控制器
       controller: widget.controller,
       // 点击时不自动获取焦点
@@ -268,8 +260,7 @@ class _ProxyTypeState extends State<ProxyType> {
         });
       },
       // 生成下拉菜单项的列表
-      dropdownMenuEntries:
-          proxyItem.values.map<DropdownMenuEntry<proxyItem>>((proxyItem item) {
+      dropdownMenuEntries: proxyItem.values.map<DropdownMenuEntry<proxyItem>>((proxyItem item) {
         // 为每个proxyItem生成一个DropdownMenuEntry
         return DropdownMenuEntry<proxyItem>(
           value: item, // 设置菜单项的值

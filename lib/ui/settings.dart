@@ -1,8 +1,10 @@
 import 'package:appproxy/data/common.dart';
+import 'package:appproxy/events/theme_bloc.dart';
 import 'package:appproxy/ui/app_update.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:version/version.dart';
@@ -21,6 +23,7 @@ class _AppSettingsState extends State<AppSettings> {
   String _arch = "";
   bool _isCheckUpdate = true;
   bool _isCheckWifi = true;
+  bool _isEnableDarkMode = false;
 
   void initDeviceInfo() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -30,6 +33,7 @@ class _AppSettingsState extends State<AppSettings> {
     // 获取是否需要检测更新
     _isCheckUpdate = await AppSetings.getCheckUpdate();
     _isCheckWifi = await AppSetings.getCheckWifi();
+    _isEnableDarkMode = await AppSetings.getEnableDarkMode();
     _version = packageInfo.version;
     if (_isCheckUpdate) {
       showUpdateDialog(context, _version, _arch);
@@ -94,7 +98,51 @@ class _AppSettingsState extends State<AppSettings> {
           Container(
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.only(left: 10.0, top: 10.0),
-            child: Text(S.of(context).text_wifi_check, style: TextStyle(color: Colors.lightBlue)),
+            child: Text(S.of(context).text_theme, style: const TextStyle(color: Colors.lightBlue)),
+          ),
+          GestureDetector(
+              child: Card(
+                  child: Container(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      width: MediaQuery.of(context).size.width,
+                      height: 50.0,
+                      child: Row(children: [
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(S.of(context).text_is_dark_mode)),
+                        const SizedBox(width: 10),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            S.of(context).text_default_follow_the_system,
+                            style: TextStyle(
+                                color: (_isEnableDarkMode ||
+                                        MediaQuery.of(context).platformBrightness ==
+                                            Brightness.dark)
+                                    ? Colors.white54
+                                    : Colors.black26),
+                          ),
+                        ),
+                        const Spacer(),
+                        Switch(
+                            value: _isEnableDarkMode,
+                            onChanged: (bool newValue) {
+                              setState(() {
+                                _isEnableDarkMode = newValue;
+                                debugPrint('isEnableDarkMode:$newValue');
+                                if (_isEnableDarkMode) {
+                                  context.read<ThemeBloc>().add(SetThemeEvent(ThemeMode.dark));
+                                } else {
+                                  context.read<ThemeBloc>().add(SetThemeEvent(ThemeMode.system));
+                                }
+                              });
+                            })
+                      ])))),
+          Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.only(left: 10.0, top: 10.0),
+            child: Text(S.of(context).text_wifi_check,
+                style: const TextStyle(color: Colors.lightBlue)),
           ),
           GestureDetector(
             child: Card(
@@ -106,8 +154,7 @@ class _AppSettingsState extends State<AppSettings> {
                   children: [
                     Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(S.of(context).text_is_check_wifi)
-                    ),
+                        child: Text(S.of(context).text_is_check_wifi)),
                     const Spacer(),
                     Switch(
                         value: _isCheckWifi,
@@ -148,7 +195,7 @@ class _AppSettingsState extends State<AppSettings> {
                 children: [
                   Text(S.of(context).text_describe),
                   Text(S.of(context).text_author),
-                  Text('${S.of(context).text_update_time}：2025-04-27'),
+                  Text('${S.of(context).text_update_time}：2025-04-29'),
                   Row(
                     children: [
                       const Text('github:'),

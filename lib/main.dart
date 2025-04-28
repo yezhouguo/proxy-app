@@ -1,13 +1,15 @@
 import 'package:appproxy/ui/app_config_list.dart';
 import 'package:appproxy/ui/proxy_config_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'events/theme_bloc.dart';
 import 'generated/l10n.dart';
 import 'ui/settings.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(BlocProvider(create: (context) => ThemeBloc(), child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -22,44 +24,54 @@ class MyApp extends StatelessWidget {
      *
      * @return 返回一个配置了特定主题和起始页面的MaterialApp实例。
      */
-    return MaterialApp(
-      // 应用标题
-      title: "appproxy",
-      // 在调试模式下打开一个小“DEBUG”横幅，以指示应用程序处于调试模式。默认情况下（在调试模式下）处于打开状态，要将其关闭，请将构造函数参数设置为 false。在发布模式下这没有任何效果
-      debugShowCheckedModeBanner: true,
-      localeResolutionCallback: (Locale? locale, Iterable<Locale> supportedLocales) {
-        var result =
-            supportedLocales.where((element) => element.languageCode == locale?.languageCode);
-        if (result.isNotEmpty) {
-          debugPrint(locale?.languageCode);
-          if (locale.toString().contains("zh")) {
+    return BlocBuilder<ThemeBloc, ThemeState>(
+      builder: (context, state) {
+        return MaterialApp(
+          // 应用标题
+          title: "appproxy",
+          // 在调试模式下打开一个小“DEBUG”横幅，以指示应用程序处于调试模式。默认情况下（在调试模式下）处于打开状态，要将其关闭，请将构造函数参数设置为 false。在发布模式下这没有任何效果
+          debugShowCheckedModeBanner: true,
+          localeResolutionCallback: (Locale? locale, Iterable<Locale> supportedLocales) {
+            var result =
+                supportedLocales.where((element) => element.languageCode == locale?.languageCode);
+            if (result.isNotEmpty) {
+              debugPrint(locale?.languageCode);
+              if (locale.toString().contains("zh")) {
+                return const Locale('zh', 'CN');
+              } else {
+                return const Locale('en', 'US');
+              }
+            }
             return const Locale('zh', 'CN');
-          } else {
-            return const Locale('en', 'US');
-          }
-        }
-        return const Locale('zh', 'CN');
-        // return _initLocale;
+            // return _initLocale;
+          },
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: S.delegate.supportedLocales,
+          theme: ThemeData(
+              // 使用深紫色作为主题颜色方案的种子颜色
+              colorScheme: ColorScheme.fromSeed(
+                // 设置主颜色，使用RGBA格式定义颜色
+                // RGBA(149, 0, 255, 1.0) 表示红色为149，绿色为0，蓝色为255，透明度为1.0（完全不透明）
+                primary: const Color.fromRGBO(149, 0, 255, 1.0),
+                // 设置种子颜色，使用RGBA格式定义颜色
+                // RGBA(149, 0, 255, 1.0) 表示红色为149，绿色为0，蓝色为255，透明度为1.0（完全不透明）
+                seedColor: const Color.fromRGBO(149, 0, 255, 1.0),
+                secondary: Colors.transparent, // 可选：设置次要颜色为透明，避免产生额外的颜色
+                error: Colors.transparent, // 可选：设置错误颜色为透明，避免产生额外的颜色
+                // 其他颜色也可以根据需要设置为透明或自定义颜色
+              ),
+              appBarTheme: const AppBarTheme(centerTitle: true)),
+          darkTheme: ThemeData.dark(useMaterial3: true),
+          themeMode: state.themeMode,
+          // 设置底部导航菜单作为应用的起始页面
+          home: const iyueMainPage(),
+        );
       },
-      localizationsDelegates: const [
-        S.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: S.delegate.supportedLocales,
-      theme: ThemeData(
-          // 使用深紫色作为主题颜色方案的种子颜色
-          colorScheme: ColorScheme.fromSeed(
-            primary: const Color.fromRGBO(149, 0, 255, 1.0),
-            seedColor: const Color.fromRGBO(149, 0, 255, 1.0),
-            secondary: Colors.transparent, // 可选：设置次要颜色为透明，避免产生额外的颜色
-            error: Colors.transparent, // 可选：设置错误颜色为透明，避免产生额外的颜色
-            // 其他颜色也可以根据需要设置为透明或自定义颜色
-          ),
-          appBarTheme: const AppBarTheme(centerTitle: true)),
-      // 设置底部导航菜单作为应用的起始页面
-      home: const iyueMainPage(),
     );
   }
 }
