@@ -130,6 +130,7 @@ class _AppSettingsState extends State<AppSettings> {
                               setState(() {
                                 _isEnableDarkMode = newValue;
                                 debugPrint('isEnableDarkMode:$newValue');
+                                AppSetings.setEnableDarkMode(newValue);
                                 if (_isEnableDarkMode) {
                                   context.read<ThemeBloc>().add(SetThemeEvent(ThemeMode.dark));
                                 } else {
