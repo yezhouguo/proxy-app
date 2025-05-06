@@ -49,6 +49,9 @@ class _AppSettingsState extends State<AppSettings> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isEnableDarkMode){
+      context.read<ThemeBloc>().add(SetThemeEvent(ThemeMode.dark));
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(S.current.text_settings),
