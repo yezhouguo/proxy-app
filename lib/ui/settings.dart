@@ -199,7 +199,7 @@ class _AppSettingsState extends State<AppSettings> {
                 children: [
                   Text(S.of(context).text_describe),
                   Text(S.of(context).text_author),
-                  Text('${S.of(context).text_update_time}：2025-04-29'),
+                  Text('${S.of(context).text_update_time}：2025-05-06'),
                   Row(
                     children: [
                       const Text('github:'),
