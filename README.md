@@ -68,5 +68,27 @@ tun2socks/build.sh
 flutter build apk --release --split-per-abi --build-name=$VERSION --obfuscate --split-debug-info ./build/
 ```
 
+## flutter shorebird 热更新
+
+- [appproxy](https://github.com/ys1231/appproxy) 已经绑定可强制更新 `app_id`
+```shell
+# linux && mac
+curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash
+# windows
+# Set-ExecutionPolicy RemoteSigned -scope CurrentUser
+# iwr -UseBasicParsing 'https://raw.githubusercontent.com/shorebirdtech/install/main/install.ps1'|iex
+
+# 官网注册
+https://console.shorebird.dev/login
+# shell 登录
+shorebird login
+# 初始化项目 在 flutter 项目下执行即可
+shorebird init
+# 编译
+shorebird release -p android --artifact apk 
+# 打补丁
+shorebird patch --platforms=android
+```
+
 # 免责声明
 - 本程序仅用于学习交流, 请勿用于非法用途.
