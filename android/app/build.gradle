@@ -29,7 +29,7 @@ if (keystore == null){
 
 def fndkVersion = localProperties.getProperty('flutter.ndkVersion')
 if (fndkVersion == null){
-    return "29.0.13113456"
+    fndkVersion = "29.0.13113456"
 }
 
 android {
