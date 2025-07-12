@@ -42,5 +42,7 @@
   "text_is_check_wifi": "是否开启 Wifi 检测",
   "text_theme": "主题",
   "text_is_dark_mode": "开启深色模式",
-  "text_default_follow_the_system": "默认跟随系统"
+  "text_default_follow_the_system": "默认跟随系统",
+  "LanguageChoice": "语言修改",
+  "text_cn_en": "中/英文切换"
 }

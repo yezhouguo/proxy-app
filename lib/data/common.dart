@@ -1,9 +1,20 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSetings {
+  static const String _isCnOrEn = "isCnOrEn";
   static const String _CheckUpdate = "isUpdate";
   static const String _CheckWifi = "isCheckWifi";
   static const String _enableDarkMode = "isEnableDarkMode";
+
+  static Future<bool> getCnOrEn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_isCnOrEn) ?? true;
+  }
+
+  static Future<bool> setCnOrEn(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setBool(_isCnOrEn, value);
+  }
 
   static Future<bool> getCheckUpdate() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
