@@ -51,6 +51,7 @@ set -x
 SCRIPT_DIR=$(dirname "\$0")
 cd "$SCRIPT_DIR"
 # init
+go mod tidy
 go install golang.org/x/mobile/cmd/gomobile@latest
 go get
 go get golang.org/x/mobile/bind

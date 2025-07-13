@@ -46,3 +46,4 @@ test/widget_test.dart
 pubspec.lock
 /lib/generated/
 /devtools_options.yaml
+/tun2socks/build.sh

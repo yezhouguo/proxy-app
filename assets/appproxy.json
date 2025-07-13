@@ -1,5 +1,5 @@
 {
   "VersionName": "v0.1.8",
-  "ModifyContent": "\n\r- [feat(update): ✨ New shorebird hot update](https://github.com/ys1231/appproxy/commit/6d9d75430bcc55e121039f1ffa0444fca3a4154c)  [app-release.apk](https://github.com/ys1231/appproxy/releases/tag/v0.1.8-pre)\n- fix(UI): Theme settings persistence, 主题设置持久化\n---\n- feat(setings): :fire: #25 Optional WiFi Detection. 可选检测 WIFI.\n- feat(Theme): :fire: #26 You can set a dark theme, or follow the system. 可设置黑暗主题, 或者跟随系统.\n- **Full Changelog**: https://github.com/ys1231/appproxy/compare/v0.1.6...v0.1.7\n\n",
+  "ModifyContent": "\r\n- 更新tun2socks库及应用配置\n\n- 更新tun2socks原生库以提升性能和稳定性\n- 修改应用设置界面UI和功能\n- 优化项目配置文件，改进开发体验\n- 更新项目文档说明\n\n修改的文件:\n- .gitignore\n- README.md\n- android/app/libs/tun2socks.aar\n- lib/ui/settings.dart\n- pubspec.yaml\n- tun2socks\n\n----------------------------------------\nEnglish version:\n\nfeat: update tun2socks library and app configuration\n\n- Update tun2socks native library for better performance and stability\n- Modify settings UI and functionality\n- Optimize project configuration files for improved development experience\n- Update project documentation\n\nFiles modified:\n- .gitignore\n- README.md\n- android/app/libs/tun2socks.aar\n- lib/ui/settings.dart\n- pubspec.yaml\n- tun2socks",
   "DownloadUrl": "https://pfile.ys1231.cn/modules/appproxy/"
 }
