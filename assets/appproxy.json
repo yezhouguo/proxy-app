@@ -1,5 +1,5 @@
 {
-  "VersionName": "v0.1.8",
-  "ModifyContent": "\r\n- 更新tun2socks库及应用配置\n\n- 更新tun2socks原生库以提升性能和稳定性\n- 修改应用设置界面UI和功能\n- 优化项目配置文件，改进开发体验\n- 更新项目文档说明\n\n修改的文件:\n- .gitignore\n- README.md\n- android/app/libs/tun2socks.aar\n- lib/ui/settings.dart\n- pubspec.yaml\n- tun2socks\n\n----------------------------------------\nEnglish version:\n\nfeat: update tun2socks library and app configuration\n\n- Update tun2socks native library for better performance and stability\n- Modify settings UI and functionality\n- Optimize project configuration files for improved development experience\n- Update project documentation\n\nFiles modified:\n- .gitignore\n- README.md\n- android/app/libs/tun2socks.aar\n- lib/ui/settings.dart\n- pubspec.yaml\n- tun2socks",
+  "VersionName": "v0.2.0",
+  "ModifyContent": "\r\n- fix(list): :fire: 修复代理列表状态刷新问题",
   "DownloadUrl": "https://pfile.ys1231.cn/modules/appproxy/"
 }

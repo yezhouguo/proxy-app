@@ -440,6 +440,9 @@ class AppConfigState extends State<AppConfigList> {
                                   } else {
                                     appProxyPackageList.remove(itemMap["packageName"]);
                                   }
+                                  setState(() {
+                                    getAppList();
+                                  });
                                 }),
                             onTap: () {
                               // 调用子控件选择或取消选中 并回调 callbackOnChanged 更新数据
