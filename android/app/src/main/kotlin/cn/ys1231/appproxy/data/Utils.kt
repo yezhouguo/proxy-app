@@ -13,6 +13,7 @@ import android.util.Base64
 import android.util.Log
 import com.google.gson.Gson
 import java.io.ByteArrayOutputStream
+import androidx.core.graphics.createBitmap
 
 class Utils(private val context: Context) {
     private val TAG = "iyue->${this.javaClass.simpleName} "
@@ -103,7 +104,7 @@ class Utils(private val context: Context) {
         val bitmapHeight = drawable.intrinsicHeight
         val bitmapConfig =
             if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
-        val bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, bitmapConfig)
+        val bitmap = createBitmap(bitmapWidth, bitmapHeight, bitmapConfig)
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)
