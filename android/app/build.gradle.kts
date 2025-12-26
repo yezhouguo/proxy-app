@@ -70,6 +70,15 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    packaging {
+        dex {
+            useLegacyPackaging = true // 启用 Dex 压缩
+        }
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
 }
 
 flutter {

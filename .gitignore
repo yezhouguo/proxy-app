@@ -47,3 +47,6 @@ pubspec.lock
 /lib/generated/
 /devtools_options.yaml
 /tun2socks/build.sh
+
+# FVM Version Cache
+.fvm/
