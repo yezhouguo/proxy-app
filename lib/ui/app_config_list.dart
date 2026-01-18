@@ -7,7 +7,7 @@ import 'package:appproxy/generated/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lpinyin/lpinyin.dart';
+import 'package:pinyin/pinyin.dart';
 
 class AppConfigList extends StatefulWidget {
   const AppConfigList({super.key});
