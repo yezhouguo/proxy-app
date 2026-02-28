@@ -252,6 +252,7 @@ class _AppSettingsState extends State<AppSettings> {
               child: Center(child: Text('${S.current.text_about} appproxy')),
             )),
             onTap: () {
+              const String buildDate = String.fromEnvironment('BUILD_DATE', defaultValue: 'unknown');
               // 显示当前app的信息
               showAboutDialog(
                 context: context,
@@ -262,7 +263,7 @@ class _AppSettingsState extends State<AppSettings> {
                 children: [
                   Text(S.of(context).text_describe),
                   Text(S.of(context).text_author),
-                  Text('${S.of(context).text_update_time}：2025-09-26'),
+                  Text('${S.of(context).text_update_time}：$buildDate'),
                   Row(
                     children: [
                       const Text('github:'),

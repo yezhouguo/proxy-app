@@ -45,7 +45,7 @@ Future<List> invokeGetAppList(token) async {
     if (processedItem.containsKey("iconBytes") && processedItem["iconBytes"] != null) {
       try {
         Uint8List iconData = base64Decode(processedItem["iconBytes"]);
-        processedItem["iconBytes"] = iconData;
+        processedItem["iconBytes"] = iconData.isEmpty ? null : iconData;
       } catch (e) {
         debugPrint("Error decoding iconBytes for app: ${processedItem["packageName"]}: $e");
         // 如果解码失败，可以设置为 null 或保留原始 base64 字符串

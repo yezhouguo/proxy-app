@@ -69,13 +69,22 @@ class Utils(private val context: Context) {
             appInfoMap["isSystemApp"] = info.isSystemApp
 
             // 获取应用的图标，并将其转换为Base64编码的字符串
-            val iconDrawable = pm.getApplicationIcon(info.packageName)
-
-            val bitmap = drawableToBitmap(iconDrawable)
-            val byteArrayOutputStream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
-            val iconBytes = byteArrayOutputStream.toByteArray()
-            appInfoMap["iconBytes"] = Base64.encodeToString(iconBytes, Base64.NO_WRAP)
+            // 应用可能在遍历过程中被卸载，需捕获 NameNotFoundException
+            try {
+                val TARGET_SIZE = 48
+                val iconDrawable = pm.getApplicationIcon(info.packageName)
+                val scaledBitmap = createBitmap(TARGET_SIZE, TARGET_SIZE, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(scaledBitmap)
+                iconDrawable.setBounds(0, 0, TARGET_SIZE, TARGET_SIZE)
+                iconDrawable.draw(canvas)
+                val byteArrayOutputStream = ByteArrayOutputStream()
+                scaledBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 75, byteArrayOutputStream)
+                scaledBitmap.recycle()
+                appInfoMap["iconBytes"] = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.NO_WRAP)
+            } catch (e: PackageManager.NameNotFoundException) {
+                Log.w(TAG, "getApplicationIcon failed for ${info.packageName}: ${e.message}")
+                appInfoMap["iconBytes"] = ""
+            }
 
             // 将应用信息的Map对象添加到应用信息列表中
             appInfoList.add(appInfoMap)
@@ -98,17 +107,5 @@ class Utils(private val context: Context) {
 
     private val PackageInfo.isSystemApp: Boolean
         get() = applicationInfo!!.flags and FLAG_SYSTEM != 0
-
-    private fun drawableToBitmap(drawable: Drawable): Bitmap {
-        val bitmapWidth = drawable.intrinsicWidth
-        val bitmapHeight = drawable.intrinsicHeight
-        val bitmapConfig =
-            if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
-        val bitmap = createBitmap(bitmapWidth, bitmapHeight, bitmapConfig)
-        val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
-        return bitmap
-    }
 
 }

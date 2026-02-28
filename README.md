@@ -65,7 +65,7 @@ ls ../android/app/libs/tun2socks.aar
 # 推荐 "Android Studio Iguana | 2023.2.1 Patch 2" -> "Android Studio Meerkat | 2024.3.1 Patch 1"
 # line 设置为 100
 tun2socks/build.sh
-flutter build apk --release --split-per-abi --build-name=$VERSION --obfuscate --split-debug-info ./build/
+flutter build apk --release --split-per-abi --build-name=$VERSION --dart-define=BUILD_DATE=$(date +%Y-%m-%d) --obfuscate --split-debug-info ./build/
 ```
 
 ## flutter shorebird 热更新
