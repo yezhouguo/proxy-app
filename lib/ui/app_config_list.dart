@@ -390,7 +390,7 @@ class AppConfigState extends State<AppConfigList> {
                   // 列表
                   child: ListView.separated(
                     // 创建从边缘反弹的滚动物理效果。
-                    physics: const BouncingScrollPhysics(),
+                    physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                     // 返回一个零尺寸的SizedBox
                     separatorBuilder: (BuildContext context, int index) => const SizedBox.shrink(),
                     // 列表项数量
