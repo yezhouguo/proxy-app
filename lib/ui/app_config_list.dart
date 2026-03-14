@@ -118,6 +118,9 @@ class AppConfigState extends State<AppConfigList> {
   // 用于更新调用子控件列表项选择状态
   List<GlobalKey<CardCheckboxState>> _cardKeys = [];
 
+  // app bar
+  bool _appActionSearchHide = false;
+
   @override
   void initState() {
     super.initState();
@@ -266,6 +269,7 @@ class AppConfigState extends State<AppConfigList> {
     setState(() {
       debugPrint("exitSearch");
       _showSearch = false;
+      _appActionSearchHide = false;
     });
   }
 
@@ -323,13 +327,11 @@ class AppConfigState extends State<AppConfigList> {
                         _searchApp(value);
                       },
                       onTapOutside: (PointerDownEvent event) {
-                        debugPrint(
-                            "search: -------- onTapOutside ----- ${event.localPosition.dx} ${event.localPosition.dy}");
-                        if (event.localPosition.dx > 340) {
-                          Future.delayed(const Duration(milliseconds: 300), () {
+                        Future.delayed(const Duration(milliseconds: 200), () {
+                          if (_appActionSearchHide) {
                             exitSearch();
-                          });
-                        }
+                          }
+                        });
                       },
                     ),
                   ),
@@ -430,6 +432,8 @@ class AppConfigState extends State<AppConfigList> {
                                 isSelected: _selectedItemsMap[itemMap["packageName"]] ?? false,
                                 // 子控件回调这个函数更新界面对应的数据
                                 callbackOnChanged: (newValue) {
+                                  // 更新显示搜索框
+                                  _appActionSearchHide = true;
                                   // 如果选中了，添加到代理列表
                                   _selectedItemsMap[itemMap["packageName"]] = newValue;
                                   // 并且更新本地数据

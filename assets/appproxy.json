@@ -1,5 +1,5 @@
 {
-  "VersionName": "v0.2.2",
-  "ModifyContent": "\r\n- feat(build): 为Dex和JNI库启用传统打包\n- fix(icon): #39 修复应用图标处理导致的内存溢出问题\n\n- feat: 优化应用刷新加载速度\n- 在应用配置列表中添加空字节数组检查，避免无效图标数据\n- 优化Android端图标处理逻辑，使用固定尺寸48x48压缩为WEBP格式\n- 添加应用卸载异常捕获，防止图标获取时程序崩溃\n- 移除原有的drawable转bitmap工具函数\n- 更新版本号至v0.2.2并添加构建日期环境变量支持",
+  "VersionName": "v0.2.3",
+  "ModifyContent": "\r\n- refactor(search): :recycle: 应用配置列表搜索功能优化\n- fix(UI): :bug: #41 修复应用少无法触发刷新\n- 添加了 appBar 搜索隐藏状态控制变量 _appActionSearchHide\n- 在退出搜索时重置搜索状态并隐藏搜索框\n- 优化了点击外部区域时的搜索退出逻辑\n- 改进了搜索框显示状态的更新机制\n- 调整了延迟时间从 300ms 到 200ms 提升响应速度",
   "DownloadUrl": "https://pfile.ys1231.cn/modules/appproxy/"
 }
