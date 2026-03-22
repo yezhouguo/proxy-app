@@ -43,11 +43,12 @@
 
 ## build tun2socks
 
-- `touch tun2socks/build.sh`
+- `touch btun2socks.sh`
 
 ```shell
 #!/bin/zsh
 set -x
+cd tun2socks
 TUN2SOCKS_DIR="${0:a:h}"
 cd $TUN2SOCKS_DIR
 go get
@@ -56,7 +57,8 @@ go get golang.org/x/mobile/bind
 go get
 make
 gomobile init
-gomobile bind -o ../android/app/libs/tun2socks.aar -target android -androidapi 30 ./engine
+# 兼容 Android 9
+gomobile bind -o ../android/app/libs/tun2socks.aar -target android -androidapi 28 ./engine
 ls ../android/app/libs/tun2socks.aar
 ```
 

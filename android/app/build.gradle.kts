@@ -38,7 +38,7 @@ android {
         applicationId = "cn.ys1231.appproxy"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 30  // tun2socks.aar 要求至少 30
+        minSdk = 28  // 跟随 tun2socks.aar api
         targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName

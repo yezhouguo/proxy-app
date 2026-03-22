@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.Base64
 import android.util.Log
 import com.google.gson.Gson
@@ -78,7 +79,11 @@ class Utils(private val context: Context) {
                 iconDrawable.setBounds(0, 0, TARGET_SIZE, TARGET_SIZE)
                 iconDrawable.draw(canvas)
                 val byteArrayOutputStream = ByteArrayOutputStream()
-                scaledBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 75, byteArrayOutputStream)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    scaledBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 75, byteArrayOutputStream)
+                }else{
+                    scaledBitmap.compress(Bitmap.CompressFormat.PNG, 75, byteArrayOutputStream)
+                }
                 scaledBitmap.recycle()
                 appInfoMap["iconBytes"] = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.NO_WRAP)
             } catch (e: PackageManager.NameNotFoundException) {
