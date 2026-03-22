@@ -1,5 +1,5 @@
 {
-  "VersionName": "v0.2.3",
-  "ModifyContent": "\r\n- refactor(search): :recycle: 应用配置列表搜索功能优化\n- fix(UI): :bug: #41 修复应用少无法触发刷新\n- 添加了 appBar 搜索隐藏状态控制变量 _appActionSearchHide\n- 在退出搜索时重置搜索状态并隐藏搜索框\n- 优化了点击外部区域时的搜索退出逻辑\n- 改进了搜索框显示状态的更新机制\n- 调整了延迟时间从 300ms 到 200ms 提升响应速度",
+  "VersionName": "v0.2.4",
+  "ModifyContent": "\r\n- build(tun2socks): #42 调整编译脚本和Android配置以兼容API 28\n- 新增btun2socks.sh脚本替代之前的build.sh, 并修正目录切换问题\n- gomobile绑定命令中androidapi版本由30降至28以兼容Android 9\n- 修改android/app/build.gradle.kts中minSdkVersion为28, 跟随tun2socks.aar支持要求\n- 更新android/settings.gradle.kts中com.android.application插件版本至9.1.0\n- 在Utils.kt中根据不同Android版本使用WEBP或PNG格式压缩图标数据\n- 在.gitignore中添加arms_cache目录忽略规则",
   "DownloadUrl": "https://pfile.ys1231.cn/modules/appproxy/"
 }
