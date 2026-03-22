@@ -7,11 +7,12 @@
 
 ## 项目简介
 
-1. 基于flutter和[tun2socks](https://github.com/xjasonlyu/tun2socks)开发.
+1. 基于 `flutter` 和[tun2socks](https://github.com/xjasonlyu/tun2socks)开发.
 2. [appproxy](https://github.com/ys1231/appproxy) 是一个轻量级的VPN代理工具，支持HTTP, SOCKS5协议.
 3. 功能单只做代理,可分app代理, **双击修改配置** 逻辑比较简单, 主打一个能用就行.
 4. 出于学习熟悉flutter的目的去做的,分享给大家,顺便帮我测试一下.
 5. 加上[MoveCertificate](https://github.com/ys1231/MoveCertificate) 上下游都有了哈哈.
+6. 支持 `Android 9` 及以上版本， 低于 `android 9` 推荐使用 `postern`
 
 ## 重要的事情说三遍
 
