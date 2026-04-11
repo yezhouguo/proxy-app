@@ -269,7 +269,7 @@ class _AppSettingsState extends State<AppSettings> {
                       const Text('github:'),
                       TextButton(
                           onPressed: () {
-                            _launchUrl('https://github.com/ys1231/appproxy');
+                            _launchUrl('https://github.com/yezhouguo/proxy-app');
                           },
                           child: const Text('proxy-app')),
                     ],
