@@ -1,7 +1,7 @@
 package cn.ys1231.appproxy
 
-//import cn.ys1231.appproxy.IyueService.IyueVPNService1
 import android.Manifest.permission.POST_NOTIFICATIONS
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
@@ -12,17 +12,19 @@ import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.IBinder
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startForegroundService
 import cn.ys1231.appproxy.IyueService.IyueVPNService
 import cn.ys1231.appproxy.data.Utils
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-
 
 class MainActivity : FlutterActivity() {
     private val TAG = "iyue->${this.javaClass.simpleName}"
@@ -36,57 +38,163 @@ class MainActivity : FlutterActivity() {
     private var intentVpnService: Intent? = null
     private var iyueVpnService: IyueVPNService? = null
     private var isBind: Boolean = false
-    private var currentProxy: Map<String, Any>? = null
     private var conn: ServiceConnection? = null
+    private lateinit var configRepository: AppProxyConfigRepository
+    private var pendingStartAfterConsent = false
+    private var vpnMonitorThread: Thread? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        configRepository = AppProxyConfigRepository(this)
         intentVpnService = Intent(this, IyueVPNService::class.java)
         conn = object : ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 Log.d(TAG, "onServiceConnected: $name")
-
-                if (service is IyueVPNService.VPNServiceBinder) {
-                    iyueVpnService = service.getService()
+                iyueVpnService = if (service is IyueVPNService.VPNServiceBinder) {
+                    service.getService()
                 } else {
                     Log.d(TAG, "onServiceConnected: ClassCastException")
+                    null
                 }
-
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
                 Log.d(TAG, "onServiceDisconnected: $name")
+                iyueVpnService = null
             }
         }
         if (bindService(intentVpnService!!, conn!!, Context.BIND_AUTO_CREATE)) {
             isBind = true
         }
+
+        ensureIniAccessPermissionIfNeeded()
+        startAutoVpnIfEligible()
     }
 
-    private fun startVpnService() {
-        Log.d(TAG, "startVpnService: ${currentProxy.toString()}")
-        iyueVpnService?.startVpnService(currentProxy!!)
+    private fun startAutoVpnIfEligible() {
+        configRepository.markVpnRunning(false)
+        configRepository.refreshFromDefaultIniIfPossible()
+        if (!configRepository.hasCachedConfig() || !configRepository.isAutoStartEnabled()) {
+            return
+        }
 
-        // 检测VPN服务是否停止 通知 Flutter 更新 ui
-        Thread {
-            Log.d(TAG, "check iyueVpnService isRunning: " + iyueVpnService?.isRunning())
-            while (true) {
+        requestNotificationPermissionIfNeeded()
+        val intent = VpnService.prepare(this)
+        if (intent != null) {
+            Log.d(TAG, "startAutoVpnIfEligible: requesting vpn consent")
+            configRepository.markVpnConsentGranted(false)
+            pendingStartAfterConsent = true
+            startActivityForResult(intent, VPN_REQUEST_CODE)
+            return
+        }
 
-                if (iyueVpnService?.isRunning() == true) {
-                    Thread.sleep(1000)
-                } else {
-                    runOnUiThread {
-                        FLUTTER_VPN_CHANNEL!!.invokeMethod("stopVpn", null)
-                    }
-                    break
-                }
-            }
-        }.start()
+        configRepository.markVpnConsentGranted(true)
+        startVpnServiceByIntent()
+    }
+
+    private fun startVpnServiceByIntent() {
+        val startIntent = IyueVPNService.createStartIntent(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(this, startIntent)
+        } else {
+            startService(startIntent)
+        }
+        startVpnStateMonitor(5000)
     }
 
     private fun stopVpnService() {
         Log.d(TAG, "stopVpnService: ...... ")
-        iyueVpnService?.stopVpnService()
+        val stopIntent = IyueVPNService.createStopIntent(this)
+        startService(stopIntent)
+    }
+
+    private fun startVpnFromFlutter(arguments: Map<String, Any>?): Boolean {
+        val normalizedConfig = configRepository.saveProxyFromFlutter(arguments ?: emptyMap()) ?: return false
+        Log.d(TAG, "startVpnFromFlutter: $normalizedConfig")
+        requestNotificationPermissionIfNeeded()
+
+        val intent = VpnService.prepare(this)
+        return if (intent != null) {
+            pendingStartAfterConsent = true
+            startActivityForResult(intent, VPN_REQUEST_CODE)
+            true
+        } else {
+            configRepository.markVpnConsentGranted(true)
+            startVpnServiceByIntent()
+            true
+        }
+    }
+
+    private fun startVpnStateMonitor(startupGraceMillis: Long = 0) {
+        if (vpnMonitorThread?.isAlive == true) {
+            return
+        }
+
+        vpnMonitorThread = Thread {
+            Log.d(TAG, "startVpnStateMonitor: start")
+            val startupDeadline = System.currentTimeMillis() + startupGraceMillis
+            try {
+                while (!Thread.currentThread().isInterrupted) {
+                    val running = iyueVpnService?.isRunning() == true || configRepository.isVpnRunning()
+                    if (running) {
+                        Thread.sleep(1000)
+                    } else if (System.currentTimeMillis() < startupDeadline) {
+                        Thread.sleep(500)
+                    } else {
+                        runOnUiThread {
+                            FLUTTER_VPN_CHANNEL?.invokeMethod("stopVpn", null)
+                        }
+                        break
+                    }
+                }
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+            }
+        }.apply { start() }
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(POST_NOTIFICATIONS),
+                    REQUEST_NOTIFICATION_PERMISSION
+                )
+            } else {
+                Log.d(TAG, "requestNotificationPermissionIfNeeded: already granted")
+            }
+        }
+    }
+
+    private fun ensureIniAccessPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(READ_EXTERNAL_STORAGE),
+                    REQUEST_READ_STORAGE_PERMISSION
+                )
+            }
+            return
+        }
+        if (Environment.isExternalStorageManager() || configRepository.hasPromptedForIniAccess()) {
+            return
+        }
+
+        configRepository.markPromptedForIniAccess()
+        try {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            startActivity(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+        }
     }
 
     private fun startDownload(url: String?) {
@@ -113,7 +221,6 @@ class MainActivity : FlutterActivity() {
                 } catch (e: Exception) {
                     result.error("-1", e.message, null)
                 }
-
             }
         }
 
@@ -125,9 +232,8 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "startVpn" -> {
                     try {
-                        currentProxy = call.arguments<Map<String, Any>>()
-                        checkVpnPermissionAndStartVpnService(this)
-                        result.success(iyueVpnService?.isRunning())
+                        val started = startVpnFromFlutter(call.arguments())
+                        result.success(started)
                     } catch (e: Exception) {
                         result.error("-1", e.message, null)
                     }
@@ -136,7 +242,7 @@ class MainActivity : FlutterActivity() {
                 "stopVpn" -> {
                     try {
                         stopVpnService()
-                        result.success(!iyueVpnService?.isRunning()!!)
+                        result.success(true)
                     } catch (e: Exception) {
                         result.error("-1", e.message, null)
                     }
@@ -152,13 +258,13 @@ class MainActivity : FlutterActivity() {
                     Log.d(TAG, "configureFlutterEngine ${call.method} ")
                     val url: String? = call.arguments<String>()
                     startDownload(url)
+                    result.success(true)
                 } catch (e: Exception) {
                     result.error("-1", e.message, null)
                 }
             }
         }
 
-        // 遍历所有 app 通知刷新
         Thread {
             Log.d(TAG, "configureFlutterEngine: start get app list info")
             utils!!.initAppList()
@@ -172,43 +278,23 @@ class MainActivity : FlutterActivity() {
 
     private val VPN_REQUEST_CODE = 100
     private val REQUEST_NOTIFICATION_PERMISSION = 1231
-    private fun checkVpnPermissionAndStartVpnService(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(POST_NOTIFICATIONS),
-                    REQUEST_NOTIFICATION_PERMISSION
-                )
-            } else {
-                // 权限已被授予
-                Log.d(TAG, "onCreate: 通知权限已授予!")
-            }
-        }
-        // 准备建立 VPN 连接 检测用户是否同意
-        var intent = VpnService.prepare(context)
-        if (intent != null) {
-            this.startActivityForResult(intent, VPN_REQUEST_CODE)
-        } else {
-            startVpnService()
-        }
-    }
+    private val REQUEST_READ_STORAGE_PERMISSION = 1232
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == VPN_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                // 用户授权成功，启动VPN服务
-                Log.d(TAG, "onActivityResult: 用户授权成功，启动VPN服务 ")
-                startVpnService()
+                Log.d(TAG, "onActivityResult: 用户授权成功，启动VPN服务")
+                configRepository.markVpnConsentGranted(true)
+                if (pendingStartAfterConsent) {
+                    pendingStartAfterConsent = false
+                    startVpnServiceByIntent()
+                }
             } else {
-                // 用户拒绝授权，处理相应逻辑
-                Log.d(TAG, "onActivityResult: 用户拒绝授权 ")
-                // 在这里可以通知Flutter层授权失败 TODO
+                Log.d(TAG, "onActivityResult: 用户拒绝授权")
+                pendingStartAfterConsent = false
+                configRepository.markVpnConsentGranted(false)
+                FLUTTER_VPN_CHANNEL?.invokeMethod("stopVpn", null)
             }
         }
     }
@@ -221,12 +307,17 @@ class MainActivity : FlutterActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // 权限被授予
                 Toast.makeText(this, "通知权限被授予", Toast.LENGTH_SHORT).show()
             } else {
-                // 权限被拒绝
                 Toast.makeText(this, "此应用程序需要通知权限", Toast.LENGTH_SHORT).show()
                 startNotificationSetting()
+            }
+        }
+        if (requestCode == REQUEST_READ_STORAGE_PERMISSION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "onRequestPermissionsResult: read storage granted")
+            } else {
+                Toast.makeText(this, "需要存储权限读取默认配置文件", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -251,6 +342,8 @@ class MainActivity : FlutterActivity() {
     }
 
     override fun onDestroy() {
+        vpnMonitorThread?.interrupt()
+        vpnMonitorThread = null
         super.onDestroy()
         if (isBind) {
             unbindService(conn!!)

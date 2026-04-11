@@ -1,0 +1,13 @@
+; proxy-app 默认配置文件示例
+; 实际使用时请保存为: /sdcard/Download/proxy-app.ini
+; 兼容旧文件名: /sdcard/Download/appproxy.ini
+; 优先级: 如果配置文件与 app 内配置同时存在，优先使用这个 ini 文件
+; 只有当 ini 文件不存在、无法读取或格式非法时，才会回退到 app 内缓存配置
+
+[proxy]
+type=socks5
+host=10.0.0.1
+port=7893
+username=
+password=
+autostart=true

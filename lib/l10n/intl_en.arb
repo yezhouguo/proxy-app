@@ -30,7 +30,7 @@
   "text_is_open_check_update": "Enable Update Check",
   "text_check_update": "Check for Updates",
   "text_about": "About",
-  "text_describe": "appproxy is a lightweight VPN proxy tool that supports HTTP and SOCKS5 protocols.",
+  "text_describe": "proxy-app is a lightweight VPN proxy tool that supports HTTP and SOCKS5 protocols.",
   "text_author": "Author: @iyue",
   "text_update_time": "Update Time",
   "text_get_version_info_fail": "Failed to get version information, please use domestic update channels!",

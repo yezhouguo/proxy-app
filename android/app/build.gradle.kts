@@ -14,9 +14,8 @@ if (localPropertiesFile.exists()) {
     localPropertiesFile.inputStream().use { localProperties.load(it) }
 }
 
-// 获取 keystore 路径
+// 获取 keystore 路径（仅 release 需要）
 val keystorePath = localProperties.getProperty("flutter.keystore")
-    ?: throw GradleException("flutter.keystore is not set in local.properties")
 
 android {
     namespace = "cn.ys1231.appproxy"
@@ -57,7 +56,9 @@ android {
         create("release") {
             keyAlias = System.getenv("KEY_ALIAS")
             keyPassword = System.getenv("KEY_PASSWORD")
-            storeFile = file(keystorePath)
+            if (!keystorePath.isNullOrBlank()) {
+                storeFile = file(keystorePath)
+            }
             storePassword = System.getenv("KEYSTORE_PASSWORD")
         }
     }

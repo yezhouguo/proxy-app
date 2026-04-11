@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:appproxy/events/debounce.dart';
-import 'package:appproxy/generated/l10n.dart';
+import 'package:proxy_app/events/debounce.dart';
+import 'package:proxy_app/generated/l10n.dart';
 import 'package:flutter/material.dart';
 
 class AddProxyWidget extends StatefulWidget {

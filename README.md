@@ -1,4 +1,4 @@
-# [appproxy](https://github.com/ys1231/appproxy)
+# [proxy-app](https://github.com/ys1231/appproxy)
 
 ## 项目背景
 
@@ -8,7 +8,7 @@
 ## 项目简介
 
 1. 基于 `flutter` 和[tun2socks](https://github.com/xjasonlyu/tun2socks)开发.
-2. [appproxy](https://github.com/ys1231/appproxy) 是一个轻量级的VPN代理工具，支持HTTP, SOCKS5协议.
+2. [proxy-app](https://github.com/ys1231/appproxy) 是一个轻量级的VPN代理工具，支持HTTP, SOCKS5协议.
 3. 功能单只做代理,可分app代理, **双击修改配置** 逻辑比较简单, 主打一个能用就行.
 4. 出于学习熟悉flutter的目的去做的,分享给大家,顺便帮我测试一下.
 5. 加上[MoveCertificate](https://github.com/ys1231/MoveCertificate) 上下游都有了哈哈.
@@ -19,6 +19,42 @@
 - **双击修改配置**
 - **双击修改配置**
 - **双击修改配置**
+
+## 默认配置文件（INI）
+
+应用支持从默认路径读取代理配置：
+
+- 路径：`/sdcard/Download/proxy-app.ini`
+- 兼容旧文件名：`/sdcard/Download/appproxy.ini`
+- 格式：仅支持 `[proxy]` 段
+
+```ini
+[proxy]
+type=socks5
+host=10.0.0.1
+port=7893
+username=
+password=
+autostart=true
+```
+
+字段说明：
+
+- `type`：代理类型，当前建议使用 `socks5`
+- `host`：代理地址
+- `port`：代理端口
+- `username`：用户名，可留空
+- `password`：密码，可留空
+- `autostart`：是否允许自动启动，`true` / `false`
+
+说明：
+
+1. 首次使用仍需用户同意系统 VPN 授权。
+2. Android 11 及以上如果要直接读取 `Download` 下的 ini 文件，需要授予文件访问权限。
+3. 可参考仓库中的示例文件：`proxy-app.ini.example`
+4. 当配置文件与 app 内已有配置同时存在时，优先使用 `/sdcard/Download/proxy-app.ini`。
+5. 兼容旧文件名 `/sdcard/Download/appproxy.ini`，但新文件名优先。
+6. 只有当 ini 文件不存在、无法读取或格式非法时，才会回退到 app 内缓存配置。
 
 ## Star History
 
@@ -73,7 +109,7 @@ flutter build apk --release --split-per-abi --build-name=$VERSION --dart-define=
 
 ## flutter shorebird 热更新
 
-- [appproxy](https://github.com/ys1231/appproxy) 已经绑定可强制更新 `app_id`
+- [proxy-app](https://github.com/ys1231/appproxy) 已经绑定可强制更新 `app_id`
 ```shell
 # linux && mac
 curl --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/shorebirdtech/install/main/install.sh -sSf | bash

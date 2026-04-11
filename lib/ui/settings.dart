@@ -1,6 +1,6 @@
-import 'package:appproxy/data/common.dart';
-import 'package:appproxy/events/theme_bloc.dart';
-import 'package:appproxy/ui/app_update.dart';
+import 'package:proxy_app/data/common.dart';
+import 'package:proxy_app/events/theme_bloc.dart';
+import 'package:proxy_app/ui/app_update.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -249,14 +249,14 @@ class _AppSettingsState extends State<AppSettings> {
               padding: const EdgeInsets.only(left: 10.0),
               width: MediaQuery.of(context).size.width,
               height: 50.0,
-              child: Center(child: Text('${S.current.text_about} appproxy')),
+              child: Center(child: Text('${S.current.text_about} proxy-app')),
             )),
             onTap: () {
               const String buildDate = String.fromEnvironment('BUILD_DATE', defaultValue: 'unknown');
               // 显示当前app的信息
               showAboutDialog(
                 context: context,
-                applicationName: 'appproxy',
+                applicationName: 'proxy-app',
                 applicationVersion: _version,
                 applicationIcon: const Icon(Icons.app_registration),
                 applicationLegalese: 'Copyright © 2024 ...',
@@ -271,7 +271,7 @@ class _AppSettingsState extends State<AppSettings> {
                           onPressed: () {
                             _launchUrl('https://github.com/ys1231/appproxy');
                           },
-                          child: const Text('appproxy')),
+                          child: const Text('proxy-app')),
                     ],
                   ),
                 ],
@@ -297,7 +297,7 @@ void showUpdateDialog(BuildContext context, String version, String arch,
     {url = '', retryCount = 0}) async {
   int maxRetry = 2; // 最大重试次数
   // 获取版本信息
-  String appproxyUpdateUrl =
+  String releaseInfoUrl =
       url != "" ? url : "https://pfile.ys1231.cn/modules/appproxy/appproxy.json";
   // 使用dio获取版本信息
   String versionName = "0";
@@ -305,8 +305,8 @@ void showUpdateDialog(BuildContext context, String version, String arch,
   String DownloadUrl = "";
   try {
     var dio = Dio();
-    Response value = await dio.get(appproxyUpdateUrl);
-    if (appproxyUpdateUrl.contains('ys1231.cn')) {
+    Response value = await dio.get(releaseInfoUrl);
+    if (releaseInfoUrl.contains('ys1231.cn')) {
       var data = value.data;
       // 1 普通更新 0 不更新
       versionName = data['VersionName'];
@@ -327,10 +327,10 @@ void showUpdateDialog(BuildContext context, String version, String arch,
   } catch (e) {
     if (retryCount < maxRetry) {
       retryCount++;
-      appproxyUpdateUrl = "https://api.github.com/repos/ys1231/appproxy/releases/latest";
+      releaseInfoUrl = "https://api.github.com/repos/ys1231/appproxy/releases/latest";
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(S.of(context).text_get_version_info_fail)));
-      showUpdateDialog(context, version, arch, url: appproxyUpdateUrl, retryCount: retryCount);
+      showUpdateDialog(context, version, arch, url: releaseInfoUrl, retryCount: retryCount);
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(S.of(context).text_get_version_info_check_networ)));

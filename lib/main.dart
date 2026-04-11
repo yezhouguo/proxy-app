@@ -1,7 +1,7 @@
-import 'package:appproxy/events/language_bloc.dart';
-import 'package:appproxy/ui/app_config_list.dart';
-import 'package:appproxy/ui/proxy_config_list.dart';
-import 'package:appproxy/ui/settings.dart';
+import 'package:proxy_app/events/language_bloc.dart';
+import 'package:proxy_app/ui/app_config_list.dart';
+import 'package:proxy_app/ui/proxy_config_list.dart';
+import 'package:proxy_app/ui/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           builder: (context, langState) {
             return MaterialApp(
               // 应用标题
-              title: "appproxy",
+              title: "proxy-app",
               // 在调试模式下打开一个小“DEBUG”横幅，以指示应用程序处于调试模式。默认情况下（在调试模式下）处于打开状态，要将其关闭，请将构造函数参数设置为 false。在发布模式下这没有任何效果
               debugShowCheckedModeBanner: true,
               locale: langState.locale,

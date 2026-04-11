@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:app_settings/app_settings.dart';
-import 'package:appproxy/data/common.dart';
-import 'package:appproxy/data/proxy_config_data.dart';
-import 'package:appproxy/events/app_events.dart';
+import 'package:proxy_app/data/common.dart';
+import 'package:proxy_app/data/proxy_config_data.dart';
+import 'package:proxy_app/events/app_events.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';

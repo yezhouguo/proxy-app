@@ -1,4 +1,4 @@
-import 'package:appproxy/generated/l10n.dart';
+import 'package:proxy_app/generated/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
