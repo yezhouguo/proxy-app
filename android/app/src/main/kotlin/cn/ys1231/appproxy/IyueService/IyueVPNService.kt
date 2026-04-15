@@ -187,10 +187,8 @@ class IyueVPNService : VpnService() {
     fun stopVpnService() {
         Log.d(TAG, "stopVpnService: vpnInterface $vpnInterface")
         try {
-            if (vpnInterface != null) {
-                vpnInterface?.close()
-                vpnInterface = null
-            }
+            Engine.stop()
+            vpnInterface = null
             isRunning = false
             configRepository.markVpnRunning(false)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
