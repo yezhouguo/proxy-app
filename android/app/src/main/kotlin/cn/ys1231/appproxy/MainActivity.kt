@@ -213,13 +213,34 @@ class MainActivity : FlutterActivity() {
             CHANNEL
         )
         FLUTTER_CHANNEL!!.setMethodCallHandler { call, result ->
-            if (call.method == "getAppList") {
-                try {
-                    Log.d(TAG, "configureFlutterEngine ${call.method} ")
-                    val appList = utils!!.getAppList()
-                    result.success(appList)
-                } catch (e: Exception) {
-                    result.error("-1", e.message, null)
+            when (call.method) {
+                "getAppList" -> {
+                    try {
+                        Log.d(TAG, "configureFlutterEngine ${call.method} ")
+                        val appList = utils!!.getAppList()
+                        result.success(appList)
+                    } catch (e: Exception) {
+                        result.error("-1", e.message, null)
+                    }
+                }
+
+                "getDefaultProxyConfig" -> {
+                    try {
+                        result.success(configRepository.loadDefaultIniConfigForFlutter())
+                    } catch (e: Exception) {
+                        result.error("-1", e.message, null)
+                    }
+                }
+
+                "saveDefaultProxyConfig" -> {
+                    try {
+                        val savedConfig = configRepository.saveDefaultIniConfigFromFlutter(
+                            call.arguments<Map<String, Any>>() ?: emptyMap()
+                        )
+                        result.success(savedConfig)
+                    } catch (e: Exception) {
+                        result.error("-1", e.message, null)
+                    }
                 }
             }
         }

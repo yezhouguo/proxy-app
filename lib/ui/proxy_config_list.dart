@@ -27,14 +27,13 @@ class _ProxyListHomeState extends State<ProxyListHome> {
   // 配置文件数据
   List<Map<String, dynamic>> _dataLists = [];
 
-  // 控制只初始化读取一次配置文件
-  bool _iscalled = false;
-
   // 当前选中代理名称
   String _isSelectedProxyName = "";
 
   // 方法调用通道
   static const platform = MethodChannel("cn.ys1231/appproxy/vpn");
+  static const configPlatform = MethodChannel("cn.ys1231/appproxy");
+  static const defaultIniConfigSource = 'defaultIni';
 
   // 当前需要启动的代理配置
   Map<String, dynamic> _currentProxyData = {};
@@ -56,47 +55,95 @@ class _ProxyListHomeState extends State<ProxyListHome> {
     });
   }
 
-  void initProxyConfig() {
+  Future<void> initProxyConfig() async {
     debugPrint("---- ProxyListHome initProxyConfig call ");
-    if (_iscalled) {
-      return;
-    }
-    _iscalled = true;
     try {
-      // 初始化历史代理配置
-      _proxyConfigData.readProxyConfig().then((value) {
-        setState(() {
-          _dataLists.clear();
-          _dataLists = value ?? [];
-        });
+      final localConfigs = (await _proxyConfigData.readProxyConfig() ?? [])
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+      final defaultConfig = await _loadDefaultProxyConfig();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _dataLists = _mergeConfigList(localConfigs, defaultConfig);
       });
     } catch (e) {
       debugPrint("---- ProxyListHome initProxyConfig error $e");
     }
   }
 
+  Future<Map<String, dynamic>?> _loadDefaultProxyConfig() async {
+    final result = await configPlatform.invokeMethod<dynamic>('getDefaultProxyConfig');
+    if (result is Map) {
+      return Map<String, dynamic>.from(result);
+    }
+    return null;
+  }
+
+  bool _isDefaultIniConfig(Map<String, dynamic> data) {
+    return data['configSource'] == defaultIniConfigSource;
+  }
+
+  bool _isSameConfigEntry(Map<String, dynamic> current, Map<String, dynamic> candidate) {
+    if (_isDefaultIniConfig(current) || _isDefaultIniConfig(candidate)) {
+      return current['configSource'] == candidate['configSource'] &&
+          current['configSourcePath'] == candidate['configSourcePath'];
+    }
+    return current['proxyName'] == candidate['proxyName'];
+  }
+
+  List<Map<String, dynamic>> _manualConfigList() {
+    return _dataLists
+        .where((item) => !_isDefaultIniConfig(item))
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+  }
+
+  List<Map<String, dynamic>> _mergeConfigList(
+    List<Map<String, dynamic>> localConfigs,
+    Map<String, dynamic>? defaultConfig,
+  ) {
+    final mergedConfigs = localConfigs
+        .where((item) => !_isDefaultIniConfig(item))
+        .map((item) => Map<String, dynamic>.from(item))
+        .toList();
+    if (defaultConfig != null) {
+      mergedConfigs.insert(0, Map<String, dynamic>.from(defaultConfig));
+    }
+    return mergedConfigs;
+  }
+
+  String _buildProxySubtitle(Map<String, dynamic> data) {
+    final summary = '${data["proxyType"]} ${data["proxyHost"]}:${data["proxyPort"]}';
+    if (!_isDefaultIniConfig(data)) {
+      return summary;
+    }
+    final path = data['configSourcePath']?.toString() ?? '';
+    if (path.isEmpty) {
+      return summary;
+    }
+    return '$summary\n$path';
+  }
+
   // 在这里处理从 AddProxyButton 返回的数据 添加代理配置到列表
   void handleConfigData(Map<String, dynamic> data, {bool isAdd = false}) {
-    if (!isAdd && _dataLists.any((item) => item['proxyName'] == data['proxyName'])) {
+    final normalizedData = Map<String, dynamic>.from(data);
+    if (!isAdd &&
+        !_isDefaultIniConfig(normalizedData) &&
+        _dataLists.any((item) => !_isDefaultIniConfig(item) && item['proxyName'] == normalizedData['proxyName'])) {
       debugPrint("handleConfigData Data already exists in the list, skipping.");
       return;
     }
-    if (isAdd) {
-      for (var item in _dataLists) {
-        if (item['proxyName'] == data['proxyName']) {
-          item['proxyName'] = data['proxyName'];
-          item['proxyType'] = data['proxyType'];
-          item['proxyHost'] = data['proxyHost'];
-          item['proxyPort'] = data['proxyPort'];
-          item['proxyUser'] = data['proxyUser'];
-          item['proxyPass'] = data['proxyPass'];
-          break;
-        }
-      }
+
+    final existingIndex = _dataLists.indexWhere((item) => _isSameConfigEntry(item, normalizedData));
+    if (existingIndex >= 0) {
+      _dataLists[existingIndex] = normalizedData;
     } else {
-      _dataLists.add(data);
+      _dataLists.add(normalizedData);
     }
-    _proxyConfigData.addProxyConfig(_dataLists).then((value) {});
+
+    _proxyConfigData.addProxyConfig(_manualConfigList()).then((value) {});
     setState(() {
       debugPrint('Received data: $_dataLists _dataLists lenth:${_dataLists.length}');
     });
@@ -104,8 +151,11 @@ class _ProxyListHomeState extends State<ProxyListHome> {
 
   // 删除列表中的代理配置
   void deletetoProxyConfig(Map<String, dynamic> data) {
+    if (_isDefaultIniConfig(data)) {
+      return;
+    }
     _dataLists.removeWhere((item) => item['proxyName'] == data['proxyName']);
-    _proxyConfigData.deleteProxyConfig(_dataLists);
+    _proxyConfigData.deleteProxyConfig(_manualConfigList());
     setState(() {
       debugPrint('delete data: $_dataLists _dataLists lenth:${_dataLists.length}');
     });
@@ -231,10 +281,13 @@ class _ProxyListHomeState extends State<ProxyListHome> {
                 child: SwitchListTile(
                   // 设置选中状态
                   value: _isSelectedProxyName == c_data["proxyName"] ? true : false,
+                  isThreeLine: _isDefaultIniConfig(c_data) &&
+                      (c_data['configSourcePath']?.toString().isNotEmpty ?? false),
                   // 设置标题和副标题
                   title: Text('${c_data["proxyName"]}'),
-                  subtitle:
-                      Text('${c_data["proxyType"]} ${c_data["proxyHost"]}:${c_data["proxyPort"]}'),
+                  subtitle: Text(
+                    _buildProxySubtitle(c_data),
+                  ),
                   // 设置switch的onChanged事件
                   onChanged: (bool value) {
                     setState(() {
@@ -248,10 +301,12 @@ class _ProxyListHomeState extends State<ProxyListHome> {
                   },
                 ),
                 // 设置长按事件 主要触发删除操作
-                onLongPress: () {
-                  debugPrint("long press delete:${c_data["proxyName"]}");
-                  _showDeleteDialog(context, c_data);
-                },
+                onLongPress: _isDefaultIniConfig(c_data)
+                    ? null
+                    : () {
+                        debugPrint("long press delete:${c_data["proxyName"]}");
+                        _showDeleteDialog(context, c_data);
+                      },
                 // 设置双击事件
                 onDoubleTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {

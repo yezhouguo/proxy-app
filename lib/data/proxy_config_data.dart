@@ -20,9 +20,6 @@ class ProxyConfigData {
   Future<void> addProxyConfig(List<Map<String, dynamic>>  data) async {
     final file = await _localFile;
     // Write the file
-    if (data.isEmpty ){
-      return ;
-    }
     // if (dataConfiglists.any((item) => item['proxyName'] == data['proxyName'])) {
     //   if (kDebugMode) {
     //     print("addProxyConfig Data already exists in the list, skipping.");
@@ -41,9 +38,6 @@ class ProxyConfigData {
   Future<void> deleteProxyConfig(List<Map<String, dynamic>>  data) async {
     final file = await _localFile;
     // Write the file
-    if (data.isEmpty ){
-      return;
-    }
     if (kDebugMode) {
       print("delete ProxyConfig:$data");
     }
@@ -64,7 +58,7 @@ class ProxyConfigData {
         dataConfiglists.add(item);
       }
       if (dataConfiglists.isEmpty) {
-        return null;
+        return [];
       }
       if(kDebugMode){
         for (var i = 0; i < dataConfiglists.length; i++){
@@ -77,7 +71,7 @@ class ProxyConfigData {
       if(kDebugMode){
         print("readProxyConfig: fail $e");
       }
-      return null;
+      return [];
     }
   }
 

@@ -1,8 +1,9 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:proxy_app/events/debounce.dart';
 import 'package:proxy_app/generated/l10n.dart';
-import 'package:flutter/material.dart';
 
 class AddProxyWidget extends StatefulWidget {
   AddProxyWidget({super.key, required this.onDataFetched, required this.onData});
@@ -33,7 +34,10 @@ bool isNullOrEmpty(Map<String, String> map) {
 }
 
 class _AddProxyWidgetState extends State<AddProxyWidget> {
-  var proxyConfig = <String, String>{};
+  static const configPlatform = MethodChannel('cn.ys1231/appproxy');
+  static const defaultIniConfigSource = 'defaultIni';
+
+  var proxyConfig = <String, dynamic>{};
   final TextEditingController _controller_proxyName = TextEditingController();
   final TextEditingController _controller_proxyType = TextEditingController();
   final TextEditingController _controller_proxyHost = TextEditingController();
@@ -74,21 +78,54 @@ class _AddProxyWidgetState extends State<AddProxyWidget> {
             IconButton(
               padding: const EdgeInsets.only(right: 20.0),
               icon: const Icon(Icons.save),
-              onPressed: () {
-                proxyConfig['proxyName'] = _controller_proxyName.text;
+              onPressed: () async {
+                final navigator = Navigator.of(context);
+                final messenger = ScaffoldMessenger.of(context);
+                final l10n = S.of(context);
+                proxyConfig = Map<String, dynamic>.from(widget.onData);
                 proxyConfig['proxyType'] = _controller_proxyType.text;
                 proxyConfig['proxyHost'] = _controller_proxyHost.text;
                 proxyConfig['proxyPort'] = _controller_proxyPort.text;
-                if (isNullOrEmpty(proxyConfig)) {
+                if (!_isDefaultIniConfig(widget.onData)) {
+                  proxyConfig['proxyName'] = _controller_proxyName.text;
+                }
+                if (isNullOrEmpty(_requiredProxyFields(proxyConfig))) {
                   debugPrint("proxyConfig:$proxyConfig");
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(S.of(context).text_check_parameters),
+                  messenger.showSnackBar(SnackBar(
+                      content: Text(l10n.text_check_parameters),
                       backgroundColor: Colors.purple.withOpacity(0.4)));
                   return;
                 }
                 // 这俩可以为空
                 proxyConfig['proxyUser'] = _controller_proxyUser.text;
                 proxyConfig['proxyPass'] = _controller_proxyPass.text;
+
+                if (_isDefaultIniConfig(widget.onData)) {
+                  try {
+                    final savedConfig = await configPlatform.invokeMethod<dynamic>(
+                      'saveDefaultProxyConfig',
+                      Map<String, dynamic>.from(proxyConfig)..remove('proxyName'),
+                    );
+                    if (!mounted) {
+                      return;
+                    }
+                    if (savedConfig is Map) {
+                      widget.onDataFetched(Map<String, dynamic>.from(savedConfig), isAdd: true);
+                      navigator.pop();
+                      return;
+                    }
+                  } on PlatformException catch (e) {
+                    debugPrint("Failed to save default proxy config: '${e.message}'.");
+                  }
+                  if (!mounted) {
+                    return;
+                  }
+                  messenger.showSnackBar(SnackBar(
+                      content: Text(l10n.text_check_parameters),
+                      backgroundColor: Colors.purple.withOpacity(0.4)));
+                  return;
+                }
+
                 if (widget.onData.isNotEmpty) {
                   widget.onDataFetched(proxyConfig, isAdd: true);
                 } else {
@@ -186,6 +223,23 @@ class _AddProxyWidgetState extends State<AddProxyWidget> {
                 ],
               ),
             )));
+  }
+
+  bool _isDefaultIniConfig(Map<String, dynamic> data) {
+    return data['configSource'] == defaultIniConfigSource;
+  }
+
+  Map<String, String> _requiredProxyFields(Map<String, dynamic> data) {
+    return {
+      'proxyName': _isDefaultIniConfig(data)
+          ? (data['proxyName']?.toString() ?? 'defaultIni')
+          : (data['proxyName']?.toString() ?? ''),
+      'proxyType': data['proxyType']?.toString() ?? '',
+      'proxyHost': data['proxyHost']?.toString() ?? '',
+      'proxyPort': data['proxyPort']?.toString() ?? '',
+      'proxyUser': data['proxyUser']?.toString() ?? '',
+      'proxyPass': data['proxyPass']?.toString() ?? '',
+    };
   }
 
   void checkConnect(context) async {

@@ -23,7 +23,7 @@ class _AppSettingsState extends State<AppSettings> {
   var _version = "v0";
   String _arch = "";
   bool _isSwitchZh = true;
-  bool _isCheckUpdate = true;
+  bool _isCheckUpdate = false;
   bool _isCheckWifi = true;
   bool _isEnableDarkMode = false;
 

@@ -9,6 +9,7 @@ class AppProxyConfigRepository(private val context: Context) {
     companion object {
         const val DEFAULT_INI_PATH = "/sdcard/Download/proxy-app.ini"
         const val LEGACY_INI_PATH = "/sdcard/Download/appproxy.ini"
+        private const val DEFAULT_INI_CONFIG_SOURCE = "defaultIni"
 
         private const val PREFS_NAME = "appproxy_native_config"
         private const val KEY_PROXY_NAME = "proxy_name"
@@ -107,6 +108,34 @@ class AppProxyConfigRepository(private val context: Context) {
         return normalizedConfig
     }
 
+    fun loadDefaultIniConfigForFlutter(): Map<String, Any>? {
+        val iniFile = resolveIniFile() ?: return null
+        return try {
+            val normalizedConfig = parseIniText(iniFile.readText()) ?: return null
+            saveNormalizedConfig(normalizedConfig)
+            attachIniMetadata(normalizedConfig, iniFile.absolutePath)
+        } catch (e: SecurityException) {
+            Log.w(TAG, "loadDefaultIniConfigForFlutter: ${e.message}")
+            null
+        } catch (e: Exception) {
+            Log.e(TAG, "loadDefaultIniConfigForFlutter: ${e.message}")
+            null
+        }
+    }
+
+    fun saveDefaultIniConfigFromFlutter(data: Map<String, Any>): Map<String, Any>? {
+        val autoStart = parseBoolean(
+            data["autoStart"]?.toString() ?: data["autostart"]?.toString(),
+            prefs.getBoolean(KEY_AUTO_START, true)
+        )
+        val normalizedConfig = normalizeProxyConfig(data, autoStart) ?: return null
+        val iniFile = resolveIniFile() ?: File(DEFAULT_INI_PATH)
+        iniFile.parentFile?.mkdirs()
+        iniFile.writeText(buildIniText(normalizedConfig))
+        saveNormalizedConfig(normalizedConfig)
+        return attachIniMetadata(normalizedConfig, iniFile.absolutePath)
+    }
+
     fun hasCachedConfig(): Boolean {
         return loadCachedConfig() != null
     }
@@ -203,6 +232,25 @@ class AppProxyConfigRepository(private val context: Context) {
             .putString(KEY_APP_PROXY_PACKAGE_LIST, normalizedConfig["appProxyPackageList"].toString())
             .putBoolean(KEY_AUTO_START, normalizedConfig["autoStart"] as Boolean)
             .apply()
+    }
+
+    private fun attachIniMetadata(config: Map<String, Any>, iniPath: String): Map<String, Any> {
+        return config.toMutableMap().apply {
+            this["configSource"] = DEFAULT_INI_CONFIG_SOURCE
+            this["configSourcePath"] = iniPath
+        }
+    }
+
+    private fun buildIniText(config: Map<String, Any>): String {
+        return buildString {
+            appendLine("[proxy]")
+            appendLine("type=${config["proxyType"]}")
+            appendLine("host=${config["proxyHost"]}")
+            appendLine("port=${config["proxyPort"]}")
+            appendLine("username=${config["proxyUser"]}")
+            appendLine("password=${config["proxyPass"]}")
+            appendLine("autostart=${config["autoStart"]}")
+        }
     }
 
     private fun parseIniText(text: String): Map<String, Any>? {

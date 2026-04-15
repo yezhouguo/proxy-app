@@ -18,7 +18,7 @@ class AppSetings {
 
   static Future<bool> getCheckUpdate() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_CheckUpdate) ?? true;
+    return prefs.getBool(_CheckUpdate) ?? false;
   }
 
   static Future<bool> setCheckUpdate(bool value) async {
